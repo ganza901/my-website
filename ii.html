@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .info-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .delete-button {
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .delete-button:hover {
+            background-color: darkred;
+        }
+        .footer {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 40px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Employee Information</h1>
+    </div>
+
+    <div class="info-section" id="employeeInfo">
+        <h2>Employee List</h2>
+        <table id="employeeTable">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Employee data will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="footer">
+    <p>&copy; 2025 Attendance System</p>
+</div>
+
+<script>
+    window.onload = function() {
+        // Retrieve employee data from localStorage
+        var employees = JSON.parse(localStorage.getItem('employees')) || [];
+
+        // Get the table body element
+        var tableBody = document.getElementById("employeeTable").getElementsByTagName("tbody")[0];
+
+        // Clear any existing rows in the table
+        tableBody.innerHTML = '';
+
+        // Loop through the employee data and add rows to the table
+        if (employees.length > 0) {
+            employees.forEach(function(employee, index) {
+                var row = tableBody.insertRow();
+
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+                var cell5 = row.insertCell(4);
+                var cell6 = row.insertCell(5);
+
+                cell1.textContent = employee.firstName;
+                cell2.textContent = employee.lastName;
+                cell3.textContent = employee.email;
+                cell4.textContent = employee.phone;
+                cell5.textContent = employee.role;
+
+                // Create Delete button
+                var deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.classList.add("delete-button");
+                deleteButton.onclick = function() {
+                    deleteEmployee(index);
+                };
+
+                cell6.appendChild(deleteButton);
+            });
+        } else {
+            tableBody.innerHTML = "<tr><td colspan='6'>No employee data found.</td></tr>";
+        }
+    };
+
+    function deleteEmployee(index) {
+        // Retrieve employee data from localStorage
+        var employees = JSON.parse(localStorage.getItem('employees')) || [];
+
+        // Remove the employee from the array
+        employees.splice(index, 1);
+
+        // Save the updated array back to localStorage
+        localStorage.setItem('employees', JSON.stringify(employees));
+
+        // Refresh the page to reflect changes
+        window.location.reload();
+    }
+</script>
+
+</body>
+</html>

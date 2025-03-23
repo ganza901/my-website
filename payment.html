@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <style>
+body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .payment-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            max-width: 100%;
+        }
+        .payment-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .form-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .form-button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            text-align: center;
+        }
+        .confirmation {
+            color: green;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .delete-button {
+            color: red;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="payment-container">
+    <h2>Payment Details</h2>
+    <form id="paymentForm" onsubmit="return validatePayment()">
+        <select class="form-input" name="employeeName" id="employeeName" required>
+            <option value="" disabled selected>Select Employee</option>
+            <!-- Employee names will be populated here -->
+        </select><br>
+        <input type="number" class="form-input" placeholder="Amount to be Paid" name="amount" id="amount" required><br>
+        <input type="number" class="form-input" placeholder="Amount Paid" name="amountPaid" id="amountPaid" required><br>
+        <input type="date" class="form-input" placeholder="Payment Date" name="paymentDate" id="paymentDate" required><br>
+        <input type="time" class="form-input" placeholder="Payment Time" name="paymentTime" id="paymentTime" disabled><br>
+        <input type="number" class="form-input" placeholder="Remaining Amount" name="remainingAmount" id="remainingAmount" disabled><br>
+
+        <button type="submit" class="form-button">Submit Payment</button>
+    </form>
+    <div id="paymentError" class="error"></div>
+    <div id="paymentConfirmation" class="confirmation"></div>
+
+    <h3>Payment History</h3>
+    <table id="paymentHistoryTable">
+        <thead>
+            <tr>
+                <th>Employee Name</th>
+                <th>Amount to be Paid</th>
+                <th>Amount Paid</th>
+                <th>Remaining Amount</th>
+                <th>Payment Date</th>
+                <th>Payment Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data rows will be added here dynamically -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Load employee names into the payment form's dropdown
+    function loadEmployeeNames() {
+        const employees = JSON.parse(localStorage.getItem('employees')) || [];
+        const employeeSelect = document.getElementById('employeeName');
+        
+        // Clear any existing options
+        employeeSelect.innerHTML = '<option value="" disabled selected>Select Employee</option>';
+        
+        // Populate the dropdown with employee names
+        employees.forEach(employee => {
+            const option = document.createElement('option');
+            option.value = `${employee.firstName} ${employee.lastName}`;
+            option.textContent = `${employee.firstName} ${employee.lastName}`;
+            employeeSelect.appendChild(option);
+        });
+    }
+
+    // Call the function to load employee names when the page loads
+    window.onload = function() {
+        loadEmployeeNames(); // Load employee names into the select dropdown
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const time = hours + ":" + minutes;
+
+        document.getElementById("paymentTime").value = time;  // Automatically set the time
+    };
+
+    // Function to handle form submission
+    function validatePayment() {
+        var employeeName = document.getElementById("employeeName").value;
+        var amount = parseFloat(document.getElementById("amount").value);
+        var amountPaid = parseFloat(document.getElementById("amountPaid").value);
+        var paymentDate = document.getElementById("paymentDate").value;
+        var paymentTime = document.getElementById("paymentTime").value;  // Automatically set time
+        var remainingAmount = parseFloat(document.getElementById("remainingAmount").value);
+
+        // Simple validation
+        if (employeeName.trim() === "" || isNaN(amount) || isNaN(amountPaid) || amount <= 0 || amountPaid < 0 || amountPaid > amount || paymentDate === "") {
+            document.getElementById("paymentError").innerText = "Please fill in all fields with valid data.";
+            return false; // Prevent form submission
+        }
+
+        // Clear previous error message
+        document.getElementById("paymentError").innerText = "";
+        
+        // Create payment data object
+        const paymentData = {
+            employeeName: employeeName,
+            amount: amount,
+            amountPaid: amountPaid,
+            remainingAmount: remainingAmount,
+            paymentDate: paymentDate,
+            paymentTime: paymentTime
+        };
+
+        // Get existing payment history from localStorage
+        let paymentHistory = JSON.parse(localStorage.getItem('paymentHistory')) || [];
+
+        // Add the new payment data to the payment history
+        paymentHistory.push(paymentData);
+
+        // Save updated payment history back to localStorage
+        localStorage.setItem('paymentHistory', JSON.stringify(paymentHistory));
+
+        // Show confirmation message
+        document.getElementById("paymentConfirmation").innerText = 
+            "Payment for " + employeeName + " of amount " + amount + " has been processed successfully on " + paymentDate + " at " + paymentTime + ".";
+
+        // Optionally, reset the form after submission
+        document.getElementById("paymentForm").reset();
+
+        // Reload the payment history to update the table
+        loadPaymentHistory();
+
+        return false; // Prevent form submission since we are handling the data with JavaScript
+    }
+
+    // Function to load payment history from localStorage
+    function loadPaymentHistory() {
+        let paymentHistory = JSON.parse(localStorage.getItem('paymentHistory')) || [];
+        const tableBody = document.getElementById('paymentHistoryTable').getElementsByTagName('tbody')[0];
+        
+        // Clear existing rows
+        tableBody.innerHTML = '';
+        
+        // Populate the table with payment history data
+        paymentHistory.forEach((payment, index) => {
+            let row = tableBody.insertRow();
+            row.insertCell(0).textContent = payment.employeeName;
+            row.insertCell(1).textContent = payment.amount;
+            row.insertCell(2).textContent = payment.amountPaid;
+            row.insertCell(3).textContent = payment.remainingAmount;
+            row.insertCell(4).textContent = payment.paymentDate;
+            row.insertCell(5).textContent = payment.paymentTime;
+
+            // Add delete button in the Actions column
+            let deleteCell = row.insertCell(6);
+            let deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.classList.add('delete-button');
+            deleteButton.onclick = function() {
+                deletePayment(index);
+            };
+            deleteCell.appendChild(deleteButton);
+        });
+    }
+
+    // Function to delete a payment record from localStorage
+    function deletePayment(index) {
+        let paymentHistory = JSON.parse(localStorage.getItem('paymentHistory')) || [];
+
+        // Remove the record at the given index
+        paymentHistory.splice(index, 1);
+
+        // Save updated payment history back to localStorage
+        localStorage.setItem('paymentHistory', JSON.stringify(paymentHistory));
+
+        // Reload the payment history to update the table
+        loadPaymentHistory();
+    }
+
+    // Function to calculate the remaining amount
+    function calculateRemainingAmount() {
+        var amount = parseFloat(document.getElementById("amount").value);
+        var amountPaid = parseFloat(document.getElementById("amountPaid").value);
+        
+        if (!isNaN(amount) && !isNaN(amountPaid)) {
+            var remainingAmount = amount - amountPaid;
+            document.getElementById("remainingAmount").value = remainingAmount.toFixed(2);
+        } else {
+            document.getElementById("remainingAmount").value = ''; // Clear if input is invalid
+        }
+    }
+
+    // Add event listeners to dynamically calculate remaining amount
+    document.getElementById("amount").addEventListener("input", calculateRemainingAmount);
+    document.getElementById("amountPaid").addEventListener("input", calculateRemainingAmount);
+</script>
+
+</body>
+</html>

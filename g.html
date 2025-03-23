@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Employee Attendance</h2>
+    <form id="attendance-form">
+        <div class="form-group">
+            <label for="employeeName">Employee Name</label>
+            <select id="employeeName" name="employeeName" required>
+                <!-- Employee names will be populated here dynamically -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="attendanceDate">Date</label>
+            <input type="date" id="attendanceDate" name="attendanceDate" required>
+        </div>
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" required>
+                <option value="Present">Present</option>
+                <option value="Leaving">Leaving</option>
+                <option value="Absent">Absent</option>
+            </select>
+        </div>
+        <div class="form-group" id="reason-group" style="display: none;">
+            <label for="reason">Reason for Absence</label>
+            <input type="text" id="reason" name="reason" placeholder="Enter Reason">
+        </div>
+        <button type="submit">Submit Attendance</button>
+    </form>
+
+    <h3>Attendance List</h3>
+    <table id="attendance-table">
+        <thead>
+            <tr>
+                <th>Employee Name</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Duration</th>
+                <th>Reason</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Attendance data will be displayed here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Retrieve and display stored data on page load
+    window.onload = function() {
+        const storedData = localStorage.getItem("attendanceData");
+        if (storedData) {
+            const attendanceData = JSON.parse(storedData);
+            displayAttendance(attendanceData);
+        }
+        // Populate employee names in the dropdown
+        const employees = JSON.parse(localStorage.getItem('employees')) || [];
+        const employeeSelect = document.getElementById("employeeName");
+
+        employees.forEach(employee => {
+            const option = document.createElement("option");
+            option.value = `${employee.firstName} ${employee.lastName}`;
+            option.textContent = `${employee.firstName} ${employee.lastName}`;
+            employeeSelect.appendChild(option);
+        });
+    };
+
+    // Handle form submission
+    document.getElementById("attendance-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const employeeName = document.getElementById("employeeName").value;
+        const attendanceDate = document.getElementById("attendanceDate").value;
+        const status = document.getElementById("status").value;
+        const reason = status === "Absent" ? document.getElementById("reason").value : "";
+
+        let time = "";
+        let duration = "N/A";  // Default if absent
+
+        // If Present or Leaving, automatically capture current time
+        if (status === "Present" || status === "Leaving") {
+            const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            if (status === "Present") {
+                time = currentTime;  // Set the time
+            } else if (status === "Leaving") {
+                // If the status is Leaving, calculate the duration
+                const storedData = localStorage.getItem("attendanceData");
+                let attendanceData = storedData ? JSON.parse(storedData) : [];
+                const lastEntry = attendanceData.find(entry => entry.employeeName === employeeName && entry.attendanceDate === attendanceDate && entry.status === "Present");
+                
+                if (lastEntry) {
+                    const start = new Date(`1970-01-01T${lastEntry.time}:00`);
+                    const end = new Date(`1970-01-01T${currentTime}:00`);
+                    const diffInMs = end - start;
+
+                    // Convert duration to hours and minutes
+                    if (diffInMs > 0) {
+                        const hours = Math.floor(diffInMs / 1000 / 60 / 60);
+                        const minutes = Math.floor((diffInMs / 1000 / 60) % 60);
+                        duration = `${hours}h ${minutes}m`;
+                    }
+                }
+            }
+        }
+
+        // Store the data in localStorage
+        const storedData = localStorage.getItem("attendanceData");
+        let attendanceData = storedData ? JSON.parse(storedData) : [];
+
+        // Add new data
+        attendanceData.push({ employeeName, attendanceDate, status, time, duration, reason });
+        localStorage.setItem("attendanceData", JSON.stringify(attendanceData));
+
+        // Add to table
+        displayAttendance(attendanceData);
+
+        // Reset form
+        document.getElementById("attendance-form").reset();
+    });
+
+    // Show/hide reason input based on attendance status
+    document.getElementById("status").addEventListener("change", function() {
+        const reasonGroup = document.getElementById("reason-group");
+        if (this.value === "Absent") {
+            reasonGroup.style.display = "block";
+        } else {
+            reasonGroup.style.display = "none";
+        }
+    });
+
+    // Function to display attendance data in the table
+    function displayAttendance(attendanceData) {
+        const table = document.getElementById("attendance-table").getElementsByTagName("tbody")[0];
+        table.innerHTML = "";  // Clear existing data
+
+        attendanceData.forEach((record, index) => {
+            const newRow = table.insertRow();
+            newRow.insertCell(0).textContent = record.employeeName;
+            newRow.insertCell(1).textContent = record.attendanceDate;
+            newRow.insertCell(2).textContent = record.status;
+            newRow.insertCell(3).textContent = record.time || "-";
+            newRow.insertCell(4).textContent = record.duration;
+            newRow.insertCell(5).textContent = record.reason || "-";
+
+            // Add Delete button
+            const deleteCell = newRow.insertCell(6);
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.classList.add("delete-btn");
+            deleteButton.onclick = function() {
+                deleteAttendanceRecord(index);
+            };
+            deleteCell.appendChild(deleteButton);
+        });
+    }
+
+    // Function to delete an attendance record
+    function deleteAttendanceRecord(index) {
+        const storedData = localStorage.getItem("attendanceData");
+        let attendanceData = storedData ? JSON.parse(storedData) : [];
+
+        // Remove the record from the data array
+        attendanceData.splice(index, 1);
+
+        // Save the updated data back to localStorage
+        localStorage.setItem("attendanceData", JSON.stringify(attendanceData));
+
+        // Re-render the table
+        displayAttendance(attendanceData);
+    }
+</script>
+
+</body>
+</html>

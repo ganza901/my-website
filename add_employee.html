@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Employee</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 50%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .form-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .form-section h2 {
+            margin-bottom: 20px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            border: none;
+        }
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+        .confirmation-message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: green;
+        }
+        .footer {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 40px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Add New Employee</h1>
+    </div>
+
+    <div class="form-section">
+        <h2>Employee Details</h2>
+        <form id="employeeForm" onsubmit="submitForm(event)">
+            <input type="text" id="firstName" class="input-field" placeholder="First Name" required>
+            <input type="text" id="lastName" class="input-field" placeholder="Last Name" required>
+            <input type="email" id="email" class="input-field" placeholder="Email Address" required>
+            <input type="tel" id="phone" class="input-field" placeholder="Phone Number" required>
+            <input type="text" id="role" class="input-field" placeholder="Role/Job Description" required>
+            <button type="submit" class="submit-button">Add Employee</button>
+        </form>
+
+        <div id="confirmationMessage" class="confirmation-message"></div>
+    </div>
+</div>
+
+<div class="footer">
+    <p>&copy; 2025 Attendance System</p>
+</div>
+
+<script>
+    function submitForm(event) {
+        event.preventDefault(); // Prevent form from reloading the page
+
+        // Get values from the input fields
+        var firstName = document.getElementById("firstName").value;
+        var lastName = document.getElementById("lastName").value;
+        var email = document.getElementById("email").value;
+        var phone = document.getElementById("phone").value;
+        var role = document.getElementById("role").value;
+
+        // Retrieve existing employees from localStorage or initialize an empty array
+        var employees = JSON.parse(localStorage.getItem('employees')) || [];
+
+        // Add the new employee to the array
+        employees.push({
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            phone: phone,
+            role: role
+        });
+
+        // Save the updated array back to localStorage
+        localStorage.setItem('employees', JSON.stringify(employees));
+
+        // Show confirmation message
+        var confirmationMessage = document.getElementById("confirmationMessage");
+        confirmationMessage.innerHTML = `Employee ${firstName} ${lastName} has been added.`;
+        confirmationMessage.style.color = "green";
+
+        // Redirect to the home page after 2 seconds
+        setTimeout(function() {
+            window.location.href = "home.html"; // Redirect back to the home page
+        }, 2000);
+
+        // Clear the form
+        document.getElementById("employeeForm").reset();
+    }
+</script>
+
+</body>
+</html>

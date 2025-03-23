@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page - Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .section h2 {
+            margin-bottom: 20px;
+        }
+        .button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .status {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #555;
+        }
+        .footer {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 40px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Welcome to Your Home Page, <span id="username">rimid</span></h1>
+    </div>
+
+    <!-- Employee Information Section -->
+    <div class="section" id="employeeInfoSection">
+        <h2>Employee Information</h2>
+        <a href="ii.html"><button class="button" id="viewEmployeeButton">View Employee Information</button></a>
+        <div class="status" id="employeeInfoStatus"></div>
+    </div>
+
+    <!-- Attendance Section -->
+    <div class="section" id="attendanceSection">
+        <h2>Attendance</h2>
+        <a href="g.html"><button class="button" id="attendanceButton" onclick="markAttendance()">Mark Attendance</button></a>
+        <div class="status" id="attendanceStatus"></div>
+    </div>
+
+    <!-- Payment Section -->
+    <div class="section" id="paymentSection">
+        <h2>Payment</h2>
+        <a href="payment.html"><button class="button" id="paymentButton">Make Payment</button></a>
+        <div class="status" id="paymentStatus"></div>
+    </div>
+
+    <!-- Add Employee Section -->
+    <div class="section" id="addEmployeeSection">
+        <h2>Add Employee</h2>
+        <a href="add_employee.html"><button class="button" id="addEmployeeButton">Add New Employee</button></a>
+        <div class="status" id="addEmployeeStatus"></div>
+    </div>
+</div>
+
+<div class="footer">
+    <p>&copy; 2025 Attendance System</p>
+</div>
+
+<script>
+    // Function to mark attendance
+    function markAttendance() {
+        var button = document.getElementById("attendanceButton");
+        var status = document.getElementById("attendanceStatus");
+
+        if (button.innerText === "Mark Attendance") {
+            // User marks attendance
+            button.innerText = "Attendance Marked";
+            status.innerText = "You have successfully marked your attendance for today.";
+            status.style.color = "green";
+        } else {
+            // User unmarks attendance
+            button.innerText = "Mark Attendance";
+            status.innerText = "You haven't marked your attendance for today.";
+            status.style.color = "red";
+        }
+    }
+</script>
+
+</body>
+</html>
